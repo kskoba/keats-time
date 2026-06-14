@@ -1,6 +1,7 @@
 export interface BillingCode {
   id: string;
   code: string;
-  description: string;
+  description?: string;
   minutesPerUnit: number;
+  payPerUnit: number;
 }

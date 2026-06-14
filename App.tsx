@@ -127,7 +127,11 @@ function AppContent() {
           AsyncStorage.getItem(KEY_UNITS),
           AsyncStorage.getItem(KEY_HOURS),
         ]);
-        setCodes(c ? (JSON.parse(c) as BillingCode[]) : defaultCodes);
+        const stored = c ? (JSON.parse(c) as BillingCode[]) : null;
+        // Migrate: if stored codes lack payPerUnit, load fresh defaults
+        const loadedCodes =
+          stored && stored.every((bc) => 'payPerUnit' in bc) ? stored : defaultCodes;
+        setCodes(loadedCodes);
         setUnits(u ? (JSON.parse(u) as Record<string, number>) : {});
         setShiftHours(h ? parseFloat(h) : 8);
       } catch {

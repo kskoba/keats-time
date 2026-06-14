@@ -26,10 +26,11 @@ export default function BillingCodeItem({
     <View style={[s.container, units > 0 && s.containerActive]}>
       <View style={s.info}>
         <Text style={s.codeText}>{code.code}</Text>
-        <Text style={s.descText} numberOfLines={2}>
-          {code.description}
-        </Text>
-        <Text style={s.minuteText}>{code.minutesPerUnit} min/unit</Text>
+        {!!code.description && (
+          <Text style={s.descText} numberOfLines={2}>
+            {code.description}
+          </Text>
+        )}
       </View>
 
       <View style={s.controls}>
@@ -94,11 +95,6 @@ function makeStyles(t: Theme) {
       color: t.textSecondary,
       marginTop: 2,
       lineHeight: 18,
-    },
-    minuteText: {
-      fontSize: 12,
-      color: t.textTertiary,
-      marginTop: 4,
     },
     controls: {
       flexDirection: 'row',

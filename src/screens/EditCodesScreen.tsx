@@ -27,6 +27,7 @@ type EditingCode = {
   code: string;
   description: string;
   minutesPerUnit: string;
+  payPerUnit: string;
 };
 
 const WEB_TOP_PAD = Platform.OS === 'web' ? 52 : 0;
@@ -49,19 +50,21 @@ export default function EditCodesScreen({
     setEditing({
       id: code.id,
       code: code.code,
-      description: code.description,
+      description: code.description ?? '',
       minutesPerUnit: code.minutesPerUnit.toString(),
+      payPerUnit: (code.payPerUnit ?? 0).toString(),
     });
   };
 
   const openNew = () => {
     setIsNew(true);
-    setEditing({ id: Date.now().toString(), code: '', description: '', minutesPerUnit: '' });
+    setEditing({ id: Date.now().toString(), code: '', description: '', minutesPerUnit: '', payPerUnit: '' });
   };
 
   const handleSaveEdit = () => {
     if (!editing) return;
-    const minutes = parseInt(editing.minutesPerUnit, 10);
+    const minutes = parseFloat(editing.minutesPerUnit);
+    const pay = parseFloat(editing.payPerUnit);
     if (!editing.code.trim()) {
       Alert.alert('Validation', 'Code name is required.');
       return;
@@ -75,6 +78,7 @@ export default function EditCodesScreen({
       code: editing.code.trim(),
       description: editing.description.trim(),
       minutesPerUnit: minutes,
+      payPerUnit: isNaN(pay) ? 0 : pay,
     };
     setLocalCodes(
       isNew
@@ -145,7 +149,7 @@ export default function EditCodesScreen({
                 <Text style={s.rowDesc} numberOfLines={1}>
                   {code.description}
                 </Text>
-                <Text style={s.rowMin}>{code.minutesPerUnit} min/unit</Text>
+                <Text style={s.rowMin}>{code.minutesPerUnit} min · ${code.payPerUnit.toFixed(2)}/unit</Text>
               </View>
               <View style={s.rowActions}>
                 <TouchableOpacity style={s.editBtn} onPress={() => openEdit(code)}>
@@ -222,9 +226,22 @@ export default function EditCodesScreen({
                 onChangeText={(v) =>
                   setEditing((e) => (e ? { ...e, minutesPerUnit: v } : e))
                 }
-                placeholder="e.g. 53"
+                placeholder="e.g. 7.5"
                 placeholderTextColor={theme.textTertiary}
-                keyboardType="number-pad"
+                keyboardType="decimal-pad"
+                returnKeyType="next"
+              />
+
+              <Text style={s.fieldLabel}>PAY PER UNIT ($)</Text>
+              <TextInput
+                style={s.fieldInput}
+                value={editing?.payPerUnit ?? ''}
+                onChangeText={(v) =>
+                  setEditing((e) => (e ? { ...e, payPerUnit: v } : e))
+                }
+                placeholder="e.g. 58.61"
+                placeholderTextColor={theme.textTertiary}
+                keyboardType="decimal-pad"
                 returnKeyType="done"
                 onSubmitEditing={handleSaveEdit}
               />

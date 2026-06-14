@@ -1,62 +1,25 @@
 [
-  {
-    "id": "1",
-    "code": "90837",
-    "description": "Individual Therapy (53+ min)",
-    "minutesPerUnit": 53
-  },
-  {
-    "id": "2",
-    "code": "90834",
-    "description": "Individual Therapy (38-52 min)",
-    "minutesPerUnit": 38
-  },
-  {
-    "id": "3",
-    "code": "90832",
-    "description": "Individual Therapy (16-37 min)",
-    "minutesPerUnit": 16
-  },
-  {
-    "id": "4",
-    "code": "90847",
-    "description": "Family Therapy with Patient (50 min)",
-    "minutesPerUnit": 50
-  },
-  {
-    "id": "5",
-    "code": "90846",
-    "description": "Family Therapy without Patient",
-    "minutesPerUnit": 50
-  },
-  {
-    "id": "6",
-    "code": "90853",
-    "description": "Group Therapy",
-    "minutesPerUnit": 90
-  },
-  {
-    "id": "7",
-    "code": "90791",
-    "description": "Psychiatric Diagnostic Evaluation",
-    "minutesPerUnit": 75
-  },
-  {
-    "id": "8",
-    "code": "99213",
-    "description": "Office Visit – Established (20-29 min)",
-    "minutesPerUnit": 20
-  },
-  {
-    "id": "9",
-    "code": "99214",
-    "description": "Office Visit – Established (30-39 min)",
-    "minutesPerUnit": 30
-  },
-  {
-    "id": "10",
-    "code": "T1017",
-    "description": "Case Management (15 min)",
-    "minutesPerUnit": 15
-  }
+  { "id": "1",  "code": "03.05",                  "description": "", "minutesPerUnit": 8,    "payPerUnit": 29.18  },
+  { "id": "2",  "code": "03.05 + cmxv 20",         "description": "", "minutesPerUnit": 25,   "payPerUnit": 44.88  },
+  { "id": "3",  "code": "03.05 + cmvx 35",         "description": "", "minutesPerUnit": 40,   "payPerUnit": 74.33  },
+  { "id": "4",  "code": "03.04",                   "description": "", "minutesPerUnit": 17,   "payPerUnit": 99.19  },
+  { "id": "5",  "code": "03.04 + cmxv 30",         "description": "", "minutesPerUnit": 35,   "payPerUnit": 130.30 },
+  { "id": "6",  "code": "13.99E, J or H  x1",      "description": "", "minutesPerUnit": 7.5,  "payPerUnit": 58.61  },
+  { "id": "7",  "code": "13.99E, J or H  x2",      "description": "", "minutesPerUnit": 22.5, "payPerUnit": 117.22 },
+  { "id": "8",  "code": "13.99E, J or H  x3",      "description": "", "minutesPerUnit": 37.5, "payPerUnit": 175.83 },
+  { "id": "9",  "code": "13.99E, J or H  x4",      "description": "", "minutesPerUnit": 52.5, "payPerUnit": 234.44 },
+  { "id": "10", "code": "13.99E, J or H  x5",      "description": "", "minutesPerUnit": 67.5, "payPerUnit": 293.05 },
+  { "id": "11", "code": "13.99E, J or H  x6",      "description": "", "minutesPerUnit": 82.5, "payPerUnit": 351.66 },
+  { "id": "12", "code": "03.05JC x1",              "description": "", "minutesPerUnit": 7.5,  "payPerUnit": 42.47  },
+  { "id": "13", "code": "03.05 JC x2",             "description": "", "minutesPerUnit": 22.5, "payPerUnit": 84.94  },
+  { "id": "14", "code": "08.19 G/H x1",            "description": "", "minutesPerUnit": 7.5,  "payPerUnit": 47.54  },
+  { "id": "15", "code": "08.19 G/H x2",            "description": "", "minutesPerUnit": 22.5, "payPerUnit": 95.08  },
+  { "id": "16", "code": "08.19 G/H x3",            "description": "", "minutesPerUnit": 37.5, "payPerUnit": 142.62 },
+  { "id": "17", "code": "08.19 G/H x4",            "description": "", "minutesPerUnit": 52.5, "payPerUnit": 190.16 },
+  { "id": "18", "code": "Min Proc.",                "description": "", "minutesPerUnit": 12,   "payPerUnit": 40.00  },
+  { "id": "19", "code": "Maj Proc.",                "description": "", "minutesPerUnit": 20,   "payPerUnit": 80.00  },
+  { "id": "20", "code": "Min ANE",                  "description": "", "minutesPerUnit": 20,   "payPerUnit": 100.00 },
+  { "id": "21", "code": "Maj ANE",                  "description": "", "minutesPerUnit": 30,   "payPerUnit": 100.00 },
+  { "id": "22", "code": "Handovers 03.05F",         "description": "", "minutesPerUnit": 3,    "payPerUnit": 29.36  },
+  { "id": "23", "code": "Phone calls / consults",   "description": "", "minutesPerUnit": 3,    "payPerUnit": 33.28  }
 ]

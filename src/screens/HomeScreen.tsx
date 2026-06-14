@@ -41,6 +41,7 @@ export default function HomeScreen({
   const [hoursInput, setHoursInput] = useState(shiftHours.toString());
   const [editingCodeId, setEditingCodeId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
+  const [viewMode, setViewMode] = useState<'minutes' | 'dollars'>('minutes');
 
   const totalShiftMinutes = Math.round(shiftHours * 60);
   const usedMinutes = codes.reduce(
@@ -53,6 +54,10 @@ export default function HomeScreen({
     totalShiftMinutes > 0
       ? Math.min(100, (usedMinutes / totalShiftMinutes) * 100)
       : 0;
+  const totalEarnings = codes.reduce(
+    (sum, code) => sum + (units[code.id] || 0) * (code.payPerUnit || 0),
+    0
+  );
 
   const handleHoursBlur = () => {
     const val = parseFloat(hoursInput);
@@ -145,35 +150,50 @@ export default function HomeScreen({
             </View>
           </View>
 
+          {/* Mode Toggle */}
+          <View style={s.modeToggleRow}>
+            <TouchableOpacity
+              style={[s.modeBtn, viewMode === 'minutes' && s.modeBtnActive]}
+              onPress={() => setViewMode('minutes')}
+            >
+              <Text style={[s.modeBtnText, viewMode === 'minutes' && s.modeBtnTextActive]}>
+                Min Left
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[s.modeBtn, viewMode === 'dollars' && s.modeBtnActive]}
+              onPress={() => setViewMode('dollars')}
+            >
+              <Text style={[s.modeBtnText, viewMode === 'dollars' && s.modeBtnTextActive]}>
+                Est. Earned
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           {/* Summary Cards */}
           <View style={s.summaryRow}>
             <View style={[s.summaryCard, s.summaryUsedCard]}>
               <Text style={s.summaryNumber}>{usedMinutes}</Text>
               <Text style={s.summaryLabel}>min used</Text>
             </View>
-            <View
-              style={[
-                s.summaryCard,
-                isOver ? s.summaryOverCard : s.summaryLeftCard,
-              ]}
-            >
-              <Text
-                style={[
-                  s.summaryNumber,
-                  isOver ? s.summaryOverNum : s.summaryLeftNum,
-                ]}
-              >
-                {Math.abs(leftMinutes)}
-              </Text>
-              <Text
-                style={[
-                  s.summaryLabel,
-                  isOver ? s.summaryOverLabel : s.summaryLeftLabel,
-                ]}
-              >
-                {isOver ? 'min over!' : 'min left'}
-              </Text>
-            </View>
+
+            {viewMode === 'minutes' ? (
+              <View style={[s.summaryCard, isOver ? s.summaryOverCard : s.summaryLeftCard]}>
+                <Text style={[s.summaryNumber, isOver ? s.summaryOverNum : s.summaryLeftNum]}>
+                  {Math.abs(leftMinutes)}
+                </Text>
+                <Text style={[s.summaryLabel, isOver ? s.summaryOverLabel : s.summaryLeftLabel]}>
+                  {isOver ? 'min over!' : 'min left'}
+                </Text>
+              </View>
+            ) : (
+              <View style={[s.summaryCard, s.summaryEarnedCard]}>
+                <Text style={[s.summaryNumber, s.summaryEarnedNum]} numberOfLines={1} adjustsFontSizeToFit>
+                  ${totalEarnings.toFixed(2)}
+                </Text>
+                <Text style={[s.summaryLabel, s.summaryEarnedLabel]}>est. earned</Text>
+              </View>
+            )}
           </View>
 
           {/* Progress Bar */}
@@ -254,12 +274,19 @@ export default function HomeScreen({
             />
             <Text style={s.modalInputLabel}>units</Text>
 
-            {editValue !== '' && !isNaN(parseInt(editValue, 10)) && (
-              <Text style={s.modalPreview}>
-                = {parseInt(editValue, 10) * (editingCode?.minutesPerUnit || 0)}{' '}
-                minutes
-              </Text>
-            )}
+            {editValue !== '' && !isNaN(parseInt(editValue, 10)) && (() => {
+              const n = parseInt(editValue, 10);
+              return (
+                <View style={{ alignItems: 'center' }}>
+                  <Text style={s.modalPreview}>
+                    = {n * (editingCode?.minutesPerUnit || 0)} min
+                  </Text>
+                  <Text style={s.modalPreviewDollars}>
+                    = ${(n * (editingCode?.payPerUnit || 0)).toFixed(2)}
+                  </Text>
+                </View>
+              );
+            })()}
 
             <View style={s.modalBtns}>
               <TouchableOpacity
@@ -393,9 +420,40 @@ function makeStyles(t: Theme) {
       shadowRadius: 4,
       elevation: 2,
     },
+    modeToggleRow: {
+      flexDirection: 'row',
+      marginHorizontal: 16,
+      marginBottom: 10,
+      backgroundColor: t.inputBg,
+      borderRadius: 10,
+      padding: 3,
+    },
+    modeBtn: {
+      flex: 1,
+      paddingVertical: 8,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
+    modeBtnActive: {
+      backgroundColor: t.cardBg,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 3,
+      elevation: 2,
+    },
+    modeBtnText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: t.textTertiary,
+    },
+    modeBtnTextActive: {
+      color: t.textPrimary,
+    },
     summaryUsedCard: { backgroundColor: t.cardBg },
     summaryLeftCard: { backgroundColor: t.greenTint },
     summaryOverCard: { backgroundColor: t.redTint },
+    summaryEarnedCard: { backgroundColor: t.blueTint },
     summaryNumber: {
       fontSize: 36,
       fontWeight: '800',
@@ -404,6 +462,7 @@ function makeStyles(t: Theme) {
     },
     summaryOverNum: { color: t.red },
     summaryLeftNum: { color: t.green },
+    summaryEarnedNum: { color: t.blue },
     summaryLabel: {
       fontSize: 13,
       color: t.textSecondary,
@@ -412,6 +471,7 @@ function makeStyles(t: Theme) {
     },
     summaryOverLabel: { color: t.red },
     summaryLeftLabel: { color: t.green },
+    summaryEarnedLabel: { color: t.blue },
     progressTrack: {
       height: 6,
       backgroundColor: t.progressBg,
@@ -521,6 +581,12 @@ function makeStyles(t: Theme) {
     modalPreview: {
       fontSize: 15,
       color: t.green,
+      fontWeight: '600',
+      marginBottom: 2,
+    },
+    modalPreviewDollars: {
+      fontSize: 14,
+      color: t.blue,
       fontWeight: '600',
       marginBottom: 4,
     },
