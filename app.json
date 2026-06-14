@@ -5,10 +5,16 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "platforms": ["ios"],
+    "platforms": [
+      "ios",
+      "web"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.kskoba.keatstime"
-    }
+    },
+    "plugins": [
+      "expo-asset"
+    ]
   }
 }

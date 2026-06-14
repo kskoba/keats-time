@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
   Platform,
 } from 'react-native';
 import { BillingCode } from '../types';
+import { useTheme, Theme } from '../ThemeContext';
 
 interface Props {
   codes: BillingCode[];
@@ -28,12 +29,7 @@ type EditingCode = {
   minutesPerUnit: string;
 };
 
-const blankEditing = (): EditingCode => ({
-  id: '',
-  code: '',
-  description: '',
-  minutesPerUnit: '',
-});
+const WEB_TOP_PAD = Platform.OS === 'web' ? 52 : 0;
 
 export default function EditCodesScreen({
   codes,
@@ -41,6 +37,9 @@ export default function EditCodesScreen({
   onSave,
   onClose,
 }: Props) {
+  const { theme } = useTheme();
+  const s = useMemo(() => makeStyles(theme), [theme]);
+
   const [localCodes, setLocalCodes] = useState<BillingCode[]>(codes);
   const [editing, setEditing] = useState<EditingCode | null>(null);
   const [isNew, setIsNew] = useState(false);
@@ -57,7 +56,7 @@ export default function EditCodesScreen({
 
   const openNew = () => {
     setIsNew(true);
-    setEditing({ ...blankEditing(), id: Date.now().toString() });
+    setEditing({ id: Date.now().toString(), code: '', description: '', minutesPerUnit: '' });
   };
 
   const handleSaveEdit = () => {
@@ -77,11 +76,11 @@ export default function EditCodesScreen({
       description: editing.description.trim(),
       minutesPerUnit: minutes,
     };
-    if (isNew) {
-      setLocalCodes([...localCodes, updated]);
-    } else {
-      setLocalCodes(localCodes.map((c) => (c.id === editing.id ? updated : c)));
-    }
+    setLocalCodes(
+      isNew
+        ? [...localCodes, updated]
+        : localCodes.map((c) => (c.id === editing.id ? updated : c))
+    );
     setEditing(null);
   };
 
@@ -99,14 +98,10 @@ export default function EditCodesScreen({
   const handleResetDefaults = () => {
     Alert.alert(
       'Reset to Defaults',
-      'This will replace all your codes with the defaults from billing-codes.json. Continue?',
+      'Replace all codes with defaults from billing-codes.json?',
       [
         { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Reset',
-          style: 'destructive',
-          onPress: () => setLocalCodes(defaultCodes),
-        },
+        { text: 'Reset', style: 'destructive', onPress: () => setLocalCodes(defaultCodes) },
       ]
     );
   };
@@ -117,15 +112,14 @@ export default function EditCodesScreen({
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onClose} style={styles.headerBtn}>
-          <Text style={styles.headerBtnText}>Cancel</Text>
+    <SafeAreaView style={s.safe}>
+      <View style={[s.header, { paddingTop: 8 + WEB_TOP_PAD }]}>
+        <TouchableOpacity onPress={onClose} style={s.headerSideBtn}>
+          <Text style={s.headerSideBtnText}>Cancel</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Edit Codes</Text>
-        <TouchableOpacity onPress={handleSaveAndClose} style={styles.headerBtn}>
-          <Text style={[styles.headerBtnText, styles.headerSaveText]}>Save</Text>
+        <Text style={s.headerTitle}>Edit Codes</Text>
+        <TouchableOpacity onPress={handleSaveAndClose} style={s.headerSideBtn}>
+          <Text style={[s.headerSideBtnText, s.headerSaveBtnText]}>Save</Text>
         </TouchableOpacity>
       </View>
 
@@ -134,56 +128,50 @@ export default function EditCodesScreen({
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
+          style={s.scroll}
+          contentContainerStyle={s.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.hint}>
-            Edit these codes here or modify{' '}
-            <Text style={styles.hintCode}>assets/billing-codes.json</Text> before
+          <Text style={s.hint}>
+            Edit codes here, or modify{' '}
+            <Text style={s.hintCode}>assets/billing-codes.json</Text> before
             rebuilding to change defaults.
           </Text>
 
           {localCodes.map((code) => (
-            <View key={code.id} style={styles.row}>
-              <View style={styles.rowInfo}>
-                <Text style={styles.rowCode}>{code.code}</Text>
-                <Text style={styles.rowDesc} numberOfLines={1}>
+            <View key={code.id} style={s.row}>
+              <View style={s.rowInfo}>
+                <Text style={s.rowCode}>{code.code}</Text>
+                <Text style={s.rowDesc} numberOfLines={1}>
                   {code.description}
                 </Text>
-                <Text style={styles.rowMin}>{code.minutesPerUnit} min/unit</Text>
+                <Text style={s.rowMin}>{code.minutesPerUnit} min/unit</Text>
               </View>
-              <View style={styles.rowActions}>
-                <TouchableOpacity
-                  style={styles.editBtn}
-                  onPress={() => openEdit(code)}
-                >
-                  <Text style={styles.editBtnText}>Edit</Text>
+              <View style={s.rowActions}>
+                <TouchableOpacity style={s.editBtn} onPress={() => openEdit(code)}>
+                  <Text style={s.editBtnText}>Edit</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.deleteBtn}
+                  style={s.deleteBtn}
                   onPress={() => handleDelete(code.id)}
                 >
-                  <Text style={styles.deleteBtnText}>✕</Text>
+                  <Text style={s.deleteBtnText}>✕</Text>
                 </TouchableOpacity>
               </View>
             </View>
           ))}
 
-          <TouchableOpacity style={styles.addBtn} onPress={openNew}>
-            <Text style={styles.addBtnText}>+ Add New Code</Text>
+          <TouchableOpacity style={s.addBtn} onPress={openNew}>
+            <Text style={s.addBtnText}>+ Add New Code</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.resetDefaultsBtn}
-            onPress={handleResetDefaults}
-          >
-            <Text style={styles.resetDefaultsText}>Reset to Defaults</Text>
+          <TouchableOpacity style={s.resetDefaultsBtn} onPress={handleResetDefaults}>
+            <Text style={s.resetDefaultsText}>Reset to Defaults</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* Edit Modal */}
+      {/* Edit / Add Modal */}
       <Modal
         visible={editing !== null}
         transparent
@@ -195,66 +183,64 @@ export default function EditCodesScreen({
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <TouchableOpacity
-            style={styles.overlay}
+            style={s.overlay}
             activeOpacity={1}
             onPress={() => setEditing(null)}
           >
-            <TouchableOpacity style={styles.editModal} activeOpacity={1}>
-              <Text style={styles.editModalTitle}>
+            <TouchableOpacity style={s.editModal} activeOpacity={1}>
+              <Text style={s.editModalTitle}>
                 {isNew ? 'Add New Code' : 'Edit Code'}
               </Text>
 
-              <Text style={styles.fieldLabel}>CODE</Text>
+              <Text style={s.fieldLabel}>CODE</Text>
               <TextInput
-                style={styles.fieldInput}
+                style={s.fieldInput}
                 value={editing?.code ?? ''}
-                onChangeText={(v) =>
-                  setEditing((e) => (e ? { ...e, code: v } : e))
-                }
+                onChangeText={(v) => setEditing((e) => (e ? { ...e, code: v } : e))}
                 placeholder="e.g. 90837"
-                placeholderTextColor="#C7C7CC"
+                placeholderTextColor={theme.textTertiary}
                 autoCapitalize="characters"
                 returnKeyType="next"
               />
 
-              <Text style={styles.fieldLabel}>DESCRIPTION</Text>
+              <Text style={s.fieldLabel}>DESCRIPTION</Text>
               <TextInput
-                style={styles.fieldInput}
+                style={s.fieldInput}
                 value={editing?.description ?? ''}
                 onChangeText={(v) =>
                   setEditing((e) => (e ? { ...e, description: v } : e))
                 }
                 placeholder="e.g. Individual Therapy (53+ min)"
-                placeholderTextColor="#C7C7CC"
+                placeholderTextColor={theme.textTertiary}
                 returnKeyType="next"
               />
 
-              <Text style={styles.fieldLabel}>MINUTES PER UNIT</Text>
+              <Text style={s.fieldLabel}>MINUTES PER UNIT</Text>
               <TextInput
-                style={styles.fieldInput}
+                style={s.fieldInput}
                 value={editing?.minutesPerUnit ?? ''}
                 onChangeText={(v) =>
                   setEditing((e) => (e ? { ...e, minutesPerUnit: v } : e))
                 }
                 placeholder="e.g. 53"
-                placeholderTextColor="#C7C7CC"
+                placeholderTextColor={theme.textTertiary}
                 keyboardType="number-pad"
                 returnKeyType="done"
                 onSubmitEditing={handleSaveEdit}
               />
 
-              <View style={styles.editModalBtns}>
+              <View style={s.editModalBtns}>
                 <TouchableOpacity
-                  style={[styles.editModalBtn, styles.editModalBtnCancel]}
+                  style={[s.editModalBtn, s.editModalBtnCancel]}
                   onPress={() => setEditing(null)}
                 >
-                  <Text style={styles.editModalBtnCancelText}>Cancel</Text>
+                  <Text style={s.editModalBtnCancelText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.editModalBtn, styles.editModalBtnSave]}
+                  style={[s.editModalBtn, s.editModalBtnSave]}
                   onPress={handleSaveEdit}
                 >
-                  <Text style={styles.editModalBtnSaveText}>
+                  <Text style={s.editModalBtnSaveText}>
                     {isNew ? 'Add' : 'Update'}
                   </Text>
                 </TouchableOpacity>
@@ -267,203 +253,198 @@ export default function EditCodesScreen({
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: '#F2F2F7',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 12,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#C6C6C8',
-  },
-  headerTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#1C1C1E',
-  },
-  headerBtn: {
-    minWidth: 70,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-  },
-  headerBtnText: {
-    fontSize: 17,
-    color: '#007AFF',
-  },
-  headerSaveText: {
-    fontWeight: '700',
-    textAlign: 'right',
-  },
-  scroll: { flex: 1 },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  hint: {
-    fontSize: 13,
-    color: '#636366',
-    marginBottom: 16,
-    lineHeight: 18,
-  },
-  hintCode: {
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-    color: '#007AFF',
-    fontSize: 12,
-  },
-  row: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    marginBottom: 10,
-    padding: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  rowInfo: { flex: 1, marginRight: 8 },
-  rowCode: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1C1C1E',
-  },
-  rowDesc: {
-    fontSize: 13,
-    color: '#636366',
-    marginTop: 2,
-  },
-  rowMin: {
-    fontSize: 12,
-    color: '#8E8E93',
-    marginTop: 2,
-  },
-  rowActions: {
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'center',
-  },
-  editBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    backgroundColor: '#EEF4FF',
-    borderRadius: 8,
-  },
-  editBtnText: {
-    fontSize: 14,
-    color: '#007AFF',
-    fontWeight: '600',
-  },
-  deleteBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: '#FFF0EE',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  deleteBtnText: {
-    fontSize: 14,
-    color: '#FF3B30',
-    fontWeight: '700',
-  },
-  addBtn: {
-    height: 52,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-    borderWidth: 2,
-    borderColor: '#007AFF',
-    borderStyle: 'dashed',
-  },
-  addBtnText: {
-    fontSize: 16,
-    color: '#007AFF',
-    fontWeight: '600',
-  },
-  resetDefaultsBtn: {
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  resetDefaultsText: {
-    fontSize: 15,
-    color: '#FF9500',
-    fontWeight: '600',
-  },
-
-  // Edit Modal
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-    justifyContent: 'flex-end',
-  },
-  editModal: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 24,
-    paddingBottom: 40,
-  },
-  editModalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1C1C1E',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  fieldLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#8E8E93',
-    letterSpacing: 0.8,
-    marginBottom: 6,
-    marginTop: 14,
-  },
-  fieldInput: {
-    height: 48,
-    backgroundColor: '#F2F2F7',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    fontSize: 16,
-    color: '#1C1C1E',
-  },
-  editModalBtns: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 24,
-  },
-  editModalBtn: {
-    flex: 1,
-    height: 52,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  editModalBtnCancel: {
-    backgroundColor: '#F2F2F7',
-  },
-  editModalBtnCancelText: {
-    fontSize: 16,
-    color: '#636366',
-    fontWeight: '600',
-  },
-  editModalBtnSave: {
-    backgroundColor: '#007AFF',
-  },
-  editModalBtnSaveText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
-});
+function makeStyles(t: Theme) {
+  return StyleSheet.create({
+    safe: {
+      flex: 1,
+      backgroundColor: t.bg,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+      paddingBottom: 12,
+      backgroundColor: t.headerBg,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: t.border,
+    },
+    headerTitle: {
+      fontSize: 17,
+      fontWeight: '700',
+      color: t.textPrimary,
+    },
+    headerSideBtn: {
+      minWidth: 70,
+      paddingVertical: 6,
+      paddingHorizontal: 10,
+    },
+    headerSideBtnText: {
+      fontSize: 17,
+      color: t.blue,
+    },
+    headerSaveBtnText: {
+      fontWeight: '700',
+      textAlign: 'right',
+    },
+    scroll: { flex: 1 },
+    scrollContent: {
+      padding: 16,
+      paddingBottom: 40,
+    },
+    hint: {
+      fontSize: 13,
+      color: t.textSecondary,
+      marginBottom: 16,
+      lineHeight: 18,
+    },
+    hintCode: {
+      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+      color: t.blue,
+      fontSize: 12,
+    },
+    row: {
+      backgroundColor: t.cardBg,
+      borderRadius: 12,
+      marginBottom: 10,
+      padding: 14,
+      flexDirection: 'row',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.06,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    rowInfo: { flex: 1, marginRight: 8 },
+    rowCode: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: t.textPrimary,
+    },
+    rowDesc: {
+      fontSize: 13,
+      color: t.textSecondary,
+      marginTop: 2,
+    },
+    rowMin: {
+      fontSize: 12,
+      color: t.textTertiary,
+      marginTop: 2,
+    },
+    rowActions: {
+      flexDirection: 'row',
+      gap: 8,
+      alignItems: 'center',
+    },
+    editBtn: {
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      backgroundColor: t.blueTint,
+      borderRadius: 8,
+    },
+    editBtnText: {
+      fontSize: 14,
+      color: t.blue,
+      fontWeight: '600',
+    },
+    deleteBtn: {
+      width: 34,
+      height: 34,
+      borderRadius: 17,
+      backgroundColor: t.redTint,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    deleteBtnText: {
+      fontSize: 14,
+      color: t.red,
+      fontWeight: '700',
+    },
+    addBtn: {
+      height: 52,
+      backgroundColor: t.cardBg,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 16,
+      borderWidth: 2,
+      borderColor: t.blue,
+      borderStyle: 'dashed',
+    },
+    addBtnText: {
+      fontSize: 16,
+      color: t.blue,
+      fontWeight: '600',
+    },
+    resetDefaultsBtn: {
+      height: 48,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    resetDefaultsText: {
+      fontSize: 15,
+      color: t.orange,
+      fontWeight: '600',
+    },
+    overlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'flex-end',
+    },
+    editModal: {
+      backgroundColor: t.modalBg,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      padding: 24,
+      paddingBottom: 40,
+    },
+    editModalTitle: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: t.textPrimary,
+      marginBottom: 20,
+      textAlign: 'center',
+    },
+    fieldLabel: {
+      fontSize: 11,
+      fontWeight: '600',
+      color: t.textTertiary,
+      letterSpacing: 0.8,
+      marginBottom: 6,
+      marginTop: 14,
+    },
+    fieldInput: {
+      height: 48,
+      backgroundColor: t.inputBg,
+      borderRadius: 10,
+      paddingHorizontal: 14,
+      fontSize: 16,
+      color: t.textPrimary,
+    },
+    editModalBtns: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 24,
+    },
+    editModalBtn: {
+      flex: 1,
+      height: 52,
+      borderRadius: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    editModalBtnCancel: { backgroundColor: t.inputBg },
+    editModalBtnCancelText: {
+      fontSize: 16,
+      color: t.textSecondary,
+      fontWeight: '600',
+    },
+    editModalBtnSave: { backgroundColor: t.blue },
+    editModalBtnSaveText: {
+      fontSize: 16,
+      color: '#FFFFFF',
+      fontWeight: '700',
+    },
+  });
+}
