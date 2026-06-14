@@ -10,3 +10,6 @@ npm-debug.*
 *.orig.*
 web-build/
 .env
+*.csv
+*.xlsx
+*.xls
