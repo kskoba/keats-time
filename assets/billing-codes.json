@@ -1,0 +1,62 @@
+[
+  {
+    "id": "1",
+    "code": "90837",
+    "description": "Individual Therapy (53+ min)",
+    "minutesPerUnit": 53
+  },
+  {
+    "id": "2",
+    "code": "90834",
+    "description": "Individual Therapy (38-52 min)",
+    "minutesPerUnit": 38
+  },
+  {
+    "id": "3",
+    "code": "90832",
+    "description": "Individual Therapy (16-37 min)",
+    "minutesPerUnit": 16
+  },
+  {
+    "id": "4",
+    "code": "90847",
+    "description": "Family Therapy with Patient (50 min)",
+    "minutesPerUnit": 50
+  },
+  {
+    "id": "5",
+    "code": "90846",
+    "description": "Family Therapy without Patient",
+    "minutesPerUnit": 50
+  },
+  {
+    "id": "6",
+    "code": "90853",
+    "description": "Group Therapy",
+    "minutesPerUnit": 90
+  },
+  {
+    "id": "7",
+    "code": "90791",
+    "description": "Psychiatric Diagnostic Evaluation",
+    "minutesPerUnit": 75
+  },
+  {
+    "id": "8",
+    "code": "99213",
+    "description": "Office Visit – Established (20-29 min)",
+    "minutesPerUnit": 20
+  },
+  {
+    "id": "9",
+    "code": "99214",
+    "description": "Office Visit – Established (30-39 min)",
+    "minutesPerUnit": 30
+  },
+  {
+    "id": "10",
+    "code": "T1017",
+    "description": "Case Management (15 min)",
+    "minutesPerUnit": 15
+  }
+]

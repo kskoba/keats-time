@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Keats Time",
+    "slug": "keats-time",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "platforms": ["ios"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.kskoba.keatstime"
+    }
+  }
+}
