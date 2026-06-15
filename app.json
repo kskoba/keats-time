@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Keats Time",
+    "name": "KEATS Calc",
     "slug": "keats-time",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "platforms": [
       "ios",
       "web"
@@ -14,8 +14,12 @@
       "bundleIdentifier": "com.kskoba.keatstime"
     },
     "plugins": [
-      "expo-asset",
-      "@react-native-community/datetimepicker"
-    ]
+      "expo-asset"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "75f03fe9-b658-423d-b785-486a5967f8ef"
+      }
+    }
   }
 }
