@@ -14,7 +14,8 @@
       "bundleIdentifier": "com.kskoba.keatstime"
     },
     "plugins": [
-      "expo-asset"
+      "expo-asset",
+      "@react-native-community/datetimepicker"
     ]
   }
 }

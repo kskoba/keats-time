@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Platform, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BillingCode } from './src/types';
+import { BillingCode, TimeEntry } from './src/types';
 import { ThemeProvider, useTheme } from './src/ThemeContext';
 import HomeScreen from './src/screens/HomeScreen';
 import EditCodesScreen from './src/screens/EditCodesScreen';
@@ -12,7 +13,12 @@ const defaultCodes = rawDefaultCodes as BillingCode[];
 
 const KEY_CODES = '@keats_codes';
 const KEY_UNITS = '@keats_units';
-const KEY_HOURS = '@keats_hours';
+const KEY_START_TIME = '@keats_start_time';
+const KEY_END_TIME = '@keats_end_time';
+const KEY_WEEKEND_STAT = '@keats_weekend_stat';
+
+const DEFAULT_START: TimeEntry = { hour: 7, minute: 0 };
+const DEFAULT_END: TimeEntry = { hour: 15, minute: 0 };
 
 function WebPhoneFrame({ children }: { children: React.ReactNode }) {
   const { isDark } = useTheme();
@@ -25,7 +31,6 @@ function WebPhoneFrame({ children }: { children: React.ReactNode }) {
         justifyContent: 'center',
       }}
     >
-      {/* Outer phone shell */}
       <View
         style={{
           width: 406,
@@ -41,45 +46,11 @@ function WebPhoneFrame({ children }: { children: React.ReactNode }) {
           elevation: 20,
         }}
       >
-        {/* Side buttons (decorative) */}
-        <View style={{
-          position: 'absolute',
-          left: -4,
-          top: 140,
-          width: 4,
-          height: 36,
-          backgroundColor: '#3a3a3a',
-          borderRadius: 2,
-        }} />
-        <View style={{
-          position: 'absolute',
-          left: -4,
-          top: 190,
-          width: 4,
-          height: 64,
-          backgroundColor: '#3a3a3a',
-          borderRadius: 2,
-        }} />
-        <View style={{
-          position: 'absolute',
-          left: -4,
-          top: 268,
-          width: 4,
-          height: 64,
-          backgroundColor: '#3a3a3a',
-          borderRadius: 2,
-        }} />
-        <View style={{
-          position: 'absolute',
-          right: -4,
-          top: 200,
-          width: 4,
-          height: 80,
-          backgroundColor: '#3a3a3a',
-          borderRadius: 2,
-        }} />
+        <View style={{ position: 'absolute', left: -4, top: 140, width: 4, height: 36, backgroundColor: '#3a3a3a', borderRadius: 2 }} />
+        <View style={{ position: 'absolute', left: -4, top: 190, width: 4, height: 64, backgroundColor: '#3a3a3a', borderRadius: 2 }} />
+        <View style={{ position: 'absolute', left: -4, top: 268, width: 4, height: 64, backgroundColor: '#3a3a3a', borderRadius: 2 }} />
+        <View style={{ position: 'absolute', right: -4, top: 200, width: 4, height: 80, backgroundColor: '#3a3a3a', borderRadius: 2 }} />
 
-        {/* Screen area */}
         <View
           style={{
             width: 390,
@@ -89,7 +60,6 @@ function WebPhoneFrame({ children }: { children: React.ReactNode }) {
             backgroundColor: '#000',
           }}
         >
-          {/* Dynamic Island */}
           <View
             style={{
               position: 'absolute',
@@ -105,8 +75,6 @@ function WebPhoneFrame({ children }: { children: React.ReactNode }) {
           {children}
         </View>
       </View>
-      <View style={{ marginTop: 16, opacity: 0.4 }}>
-      </View>
     </View>
   );
 }
@@ -116,24 +84,29 @@ function AppContent() {
   const [screen, setScreen] = useState<'home' | 'editCodes'>('home');
   const [codes, setCodes] = useState<BillingCode[]>([]);
   const [units, setUnits] = useState<Record<string, number>>({});
-  const [shiftHours, setShiftHours] = useState(8);
+  const [startTime, setStartTime] = useState<TimeEntry>(DEFAULT_START);
+  const [endTime, setEndTime] = useState<TimeEntry>(DEFAULT_END);
+  const [isWeekendStat, setIsWeekendStat] = useState(false);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
-        const [c, u, h] = await Promise.all([
+        const [c, u, st, et, ws] = await Promise.all([
           AsyncStorage.getItem(KEY_CODES),
           AsyncStorage.getItem(KEY_UNITS),
-          AsyncStorage.getItem(KEY_HOURS),
+          AsyncStorage.getItem(KEY_START_TIME),
+          AsyncStorage.getItem(KEY_END_TIME),
+          AsyncStorage.getItem(KEY_WEEKEND_STAT),
         ]);
         const stored = c ? (JSON.parse(c) as BillingCode[]) : null;
-        // Migrate: if stored codes lack payPerUnit, load fresh defaults
         const loadedCodes =
           stored && stored.every((bc) => 'payPerUnit' in bc) ? stored : defaultCodes;
         setCodes(loadedCodes);
         setUnits(u ? (JSON.parse(u) as Record<string, number>) : {});
-        setShiftHours(h ? parseFloat(h) : 8);
+        if (st) setStartTime(JSON.parse(st) as TimeEntry);
+        if (et) setEndTime(JSON.parse(et) as TimeEntry);
+        if (ws) setIsWeekendStat(ws === 'true');
       } catch {
         setCodes(defaultCodes);
       }
@@ -146,9 +119,19 @@ function AppContent() {
     await AsyncStorage.setItem(KEY_UNITS, JSON.stringify(newUnits));
   };
 
-  const handleShiftHoursChange = async (hours: number) => {
-    setShiftHours(hours);
-    await AsyncStorage.setItem(KEY_HOURS, hours.toString());
+  const handleStartTimeChange = async (t: TimeEntry) => {
+    setStartTime(t);
+    await AsyncStorage.setItem(KEY_START_TIME, JSON.stringify(t));
+  };
+
+  const handleEndTimeChange = async (t: TimeEntry) => {
+    setEndTime(t);
+    await AsyncStorage.setItem(KEY_END_TIME, JSON.stringify(t));
+  };
+
+  const handleWeekendStatChange = async (v: boolean) => {
+    setIsWeekendStat(v);
+    await AsyncStorage.setItem(KEY_WEEKEND_STAT, v.toString());
   };
 
   const handleCodesChange = async (newCodes: BillingCode[]) => {
@@ -170,9 +153,13 @@ function AppContent() {
       <HomeScreen
         codes={codes}
         units={units}
-        shiftHours={shiftHours}
+        startTime={startTime}
+        endTime={endTime}
+        isWeekendStat={isWeekendStat}
         onUnitsChange={handleUnitsChange}
-        onShiftHoursChange={handleShiftHoursChange}
+        onStartTimeChange={handleStartTimeChange}
+        onEndTimeChange={handleEndTimeChange}
+        onWeekendStatChange={handleWeekendStatChange}
         onEditCodes={() => setScreen('editCodes')}
       />
     );
@@ -196,8 +183,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
