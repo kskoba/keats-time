@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "KEATS Calc",
-    "slug": "keats-time",
+    "slug": "keats-calc",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
