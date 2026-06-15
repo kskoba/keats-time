@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Platform, View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BillingCode, TimeEntry } from './src/types';
@@ -183,10 +182,8 @@ function AppContent() {
 
 export default function App() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider>
-        <AppContent />
-      </ThemeProvider>
-    </GestureHandlerRootView>
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }
