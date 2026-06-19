@@ -7,11 +7,11 @@ import {
   ScrollView,
   StyleSheet,
   Alert,
-  SafeAreaView,
   Modal,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { BillingCode } from '../types';
 import { useTheme, Theme } from '../ThemeContext';
 

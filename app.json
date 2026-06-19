@@ -13,6 +13,7 @@
     },
     "platforms": [
       "ios",
+      "android",
       "web"
     ],
     "ios": {
@@ -21,6 +22,9 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
+    },
+    "android": {
+      "package": "com.kskoba.keatscalc"
     },
     "plugins": [
       "expo-asset"

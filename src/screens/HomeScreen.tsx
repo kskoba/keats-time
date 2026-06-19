@@ -8,11 +8,11 @@ import {
   ScrollView,
   StyleSheet,
   Alert,
-  SafeAreaView,
   Modal,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { BillingCode, TimeEntry } from '../types';
 import { useTheme, Theme } from '../ThemeContext';
 import BillingCodeItem from '../components/BillingCodeItem';
@@ -102,6 +102,8 @@ export default function HomeScreen({
   };
 
   const totalShiftMinutes = calcShiftMinutes(startTime, endTime);
+  const totalPatients = Object.values(units).reduce((sum, n) => sum + n, 0);
+
   const usedMinutes = codes.reduce(
     (sum, code) => sum + (units[code.id] || 0) * code.minutesPerUnit,
     0
@@ -167,7 +169,7 @@ export default function HomeScreen({
         <TouchableOpacity onPress={toggleTheme} style={s.headerBtn}>
           <Text style={s.headerBtnText}>{isDark ? 'Light' : 'Dark'}</Text>
         </TouchableOpacity>
-        <Text style={s.headerTitle}>Keats Time</Text>
+        <Text style={s.headerTitle}>Keats Calc</Text>
         <TouchableOpacity onPress={onEditCodes} style={s.headerBtn}>
           <Text style={[s.headerBtnText, s.headerBtnRight]}>Edit Codes</Text>
         </TouchableOpacity>
@@ -243,6 +245,8 @@ export default function HomeScreen({
             ]}
           />
         </View>
+
+        <Text style={s.patientCount}>Number of patients: {totalPatients}</Text>
       </View>
 
       {/* Scrollable content */}
@@ -644,6 +648,13 @@ function makeStyles(t: Theme) {
       overflow: 'hidden',
     },
     progressFill: { height: '100%', borderRadius: 3 },
+    patientCount: {
+      fontSize: 12,
+      fontWeight: '500',
+      color: t.textSecondary,
+      textAlign: 'center',
+      paddingVertical: 6,
+    },
     scroll: { flex: 1 },
     scrollContent: { paddingBottom: 32, paddingTop: 16 },
     card: {
