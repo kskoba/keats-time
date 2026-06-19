@@ -147,10 +147,14 @@ export default function HomeScreen({
   };
 
   const handleResetAll = () => {
-    Alert.alert('Reset All', 'Reset all billing codes to zero?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Reset All', style: 'destructive', onPress: () => onUnitsChange({}) },
-    ]);
+    if (Platform.OS === 'web') {
+      if (window.confirm('Reset all billing codes to zero?')) onUnitsChange({});
+    } else {
+      Alert.alert('Reset All', 'Reset all billing codes to zero?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Reset All', style: 'destructive', onPress: () => onUnitsChange({}) },
+      ]);
+    }
   };
 
   const editingCode = codes.find((c) => c.id === editingCodeId);

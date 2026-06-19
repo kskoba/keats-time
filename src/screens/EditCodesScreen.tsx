@@ -116,10 +116,14 @@ export default function EditCodesScreen({ codes, defaultCodes, onSave, onClose }
   };
 
   const handleResetDefaults = () => {
-    Alert.alert('Reset to Defaults', 'Replace all codes with defaults?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Reset', style: 'destructive', onPress: () => setLocalCodes(defaultCodes) },
-    ]);
+    if (Platform.OS === 'web') {
+      if (window.confirm('Replace all codes with defaults?')) setLocalCodes(defaultCodes);
+    } else {
+      Alert.alert('Reset to Defaults', 'Replace all codes with defaults?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Reset', style: 'destructive', onPress: () => setLocalCodes(defaultCodes) },
+      ]);
+    }
   };
 
   const renderCodeRow = (code: BillingCode) => (

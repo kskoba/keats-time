@@ -26,8 +26,15 @@
     "android": {
       "package": "com.kskoba.keatscalc"
     },
+    "updates": {
+      "url": "https://u.expo.dev/75f03fe9-b658-423d-b785-486a5967f8ef"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "plugins": [
-      "expo-asset"
+      "expo-asset",
+      "expo-updates"
     ],
     "extra": {
       "eas": {
